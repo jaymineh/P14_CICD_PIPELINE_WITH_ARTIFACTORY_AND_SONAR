@@ -1,7 +1,7 @@
 [nfs]
 10.0.5.36 ansible_ssh_user='ec2-user'
 
-[webservers]
+[webserver]
 10.0.4.64 ansible_ssh_user='ec2-user'
 10.0.6.48 ansible_ssh_user='ec2-user'
 10.0.4.190 ansible_ssh_user='ec2-user'
