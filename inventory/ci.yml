@@ -1,0 +1,11 @@
+[jenkins]
+10.0.14.34
+
+[lb]
+10.0.0.102
+
+[sonarqube]
+10.0.21.243
+
+[artifact_repository]
+10.0.21.243
