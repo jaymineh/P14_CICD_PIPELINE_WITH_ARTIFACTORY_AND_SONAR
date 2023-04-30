@@ -9,3 +9,19 @@
 
 [artifact_repository]
 10.0.21.243
+
+[tooling]
+10.0.4.67
+10.0.6.48
+10.0.4.190
+
+[todo]
+10.0.21.48
+10.0.17.182
+
+[db]
+10.0.12.51
+
+[db:vars]
+ansible_user=ubuntu
+ansible_python_interpreter=/usr/bin/python
