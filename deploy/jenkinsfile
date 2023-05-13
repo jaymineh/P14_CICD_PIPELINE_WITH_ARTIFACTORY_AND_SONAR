@@ -27,7 +27,7 @@ pipeline {
       stage('Run Ansible playbook') {
         steps {
           withEnv (['ANSIBLE_CONFIG = ${WORKSPACE}/deploy/ansible.cfg']){ 
-	   ansiblePlaybook become: true, colorized: true, credentialsId: 'private-key', disableHostKeyChecking: true, installation: 'ansible', inventory: "inventory/${inventory}", playbook: 'playbooks/site.yml', interpreter: 'usr/bin/python3'
+	   ansiblePlaybook become: true, colorized: true, credentialsId: 'private-key', disableHostKeyChecking: true, installation: 'ansible', inventory: "inventory/${inventory}", playbook: 'playbooks/site.yml'
          }
 	} 
       }
