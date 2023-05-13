@@ -6,6 +6,6 @@
   tags:
     - always
 
-- hosts: webserver
+- hosts: uat-webserver
 - name: Webserver assignment
-  import_playbook: ../static-assignments/uat-webservers.yml
+  import_playbook: ../static-assignments/uat-webserver.yml

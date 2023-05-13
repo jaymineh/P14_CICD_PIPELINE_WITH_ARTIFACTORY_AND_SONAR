@@ -10,8 +10,8 @@
         name: wireshark
         state: latest
 
-- name: update LB & db server
-  hosts: lb, db
+- name: update LB server
+  hosts: lb
   remote_user: ubuntu
   become: yes
   become_user: root
@@ -19,7 +19,16 @@
     - name: Update apt repo
       apt: 
         update_cache: yes
-
+        
+- name: update db server
+  hosts: db
+  remote_user: ec2-user
+  become: yes
+  become_user: root
+  tasks:
+    - name: Update yum repo
+      yum:
+        update_cache: yes
 
     - name: ensure wireshark is at the latest version
       apt:
@@ -27,7 +36,7 @@
         state: latest
 
 - name: create directory, file and set timezone on all servers
-  hosts: webserver, nfs, db, lb
+  hosts: webserver, nfs, db, lb, uat-webservers
   become: yes
   tasks:
     - name: create a directory

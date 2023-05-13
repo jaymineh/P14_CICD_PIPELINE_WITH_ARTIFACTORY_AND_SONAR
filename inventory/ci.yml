@@ -1,27 +1,31 @@
 [jenkins]
-10.0.14.34
+10.0.14.34 ansible_ssh_user='ubuntu'
 
 [lb]
-10.0.0.102
+10.0.0.102 ansible_ssh_user='ubuntu'
 
 [sonarqube]
-10.0.21.243
+10.0.21.243 ansible_ssh_user='ubuntu'
 
 [artifact_repository]
-10.0.21.243
+10.0.21.243 ansible_ssh_user='ubuntu'
 
 [tooling]
-10.0.4.67
-10.0.6.48
-10.0.4.190
+10.0.4.67 ansible_ssh_user='ec2-user'
+10.0.6.48 ansible_ssh_user='ec2-user'
+10.0.4.190 ansible_ssh_user='ec2-user'
 
 [todo]
-10.0.21.48
-10.0.17.182
+10.0.21.48 ansible_ssh_user='ec2-user'
+10.0.17.182 ansible_ssh_user='ec2-user'
+
+[uat-webserver]
+10.0.21.48 ansible_ssh_user='ec2-user' 
+10.0.17.182 ansible_ssh_user='ec2-user'
 
 [db]
-10.0.12.51
+10.0.27.107 ansible_ssh_user='ec2-user'
 
 [db:vars]
-ansible_user=ubuntu
-ansible_python_interpreter=/usr/bin/python
+ansible_user=ec2-user
+ansible_python_interpreter=/usr/bin/python3
