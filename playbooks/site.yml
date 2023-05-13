@@ -1,7 +1,5 @@
 ---
 - hosts: all
-  vars:
-    ansible_python_interpreter: /usr/bin/python3.10
 - name: Include dynamic variables 
   import_playbook: ../static-assignments/common.yml 
   include: ../dynamic-assignments/env-vars.yml
