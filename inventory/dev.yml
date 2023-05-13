@@ -15,7 +15,7 @@
 10.0.21.48 ansible_ssh_user='ec2-user'
 10.0.17.182 ansible_ssh_user='ec2-user'
 
-[uat-webservers]
+[uat-webserver]
 10.0.21.48 ansible_ssh_user='ec2-user' 
 10.0.17.182 ansible_ssh_user='ec2-user'
 
