@@ -6,6 +6,6 @@
   tags:
     - always
     
-- hosts: uat-webserver
-- name: Webserver assignment
-  import_playbook: ../static-assignments/uat-webserver.yml
+- hosts: sonar
+- name: Sonarqube installation
+  import_playbook: ../static-assignments/sonar.yml
