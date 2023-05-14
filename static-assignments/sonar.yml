@@ -1,0 +1,4 @@
+---
+- hosts: sonar
+  roles:
+     - sonarqube
