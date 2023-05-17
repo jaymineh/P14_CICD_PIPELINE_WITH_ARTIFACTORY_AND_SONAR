@@ -36,3 +36,69 @@
 ![Pipeline Build From Blue Ocean]
 
 - In the `ansiblecfg` root directory, create a folder called `deploy`. Go into the `deploy` folder and create a `Jenkinsfile` and switch to a new git branch called `feature/jenkinspipeline`
+
+![Jenkinsfile Location]
+
+![Feature Branch]
+
+- Insert the code below into the `Jenkinsfile` that was just created. This is done to test if the pipeline is configured correctly and working properly. The script itself does nothing and is just an echo shell script.
+
+```
+('Build') {
+      steps {
+              script {
+	             pipeline {
+  agent any
+
+  stages {
+    stage   sh 'echo "Building Stage"'
+        }
+      }
+    }
+
+    stage('Test') {
+      steps {
+        script {
+          sh 'echo "Testing Stage"'
+        }
+      }
+    }
+
+    stage('Package') {
+      steps {
+        script {
+          sh 'echo "Testing Stage"'
+        }
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        script {
+          sh 'echo "Testing Stage"'
+        }
+      }
+    }
+
+    stage('Clean up') {
+      steps {
+        script {
+          sh 'echo "Testing Stage"'
+        }
+      }
+    }
+  }
+}
+```
+
+*The above stages can be added step by step (i.e build stage, test stage, etc) to see howthings progress*
+
+- After adding the above code to the Jenkinsfile, push to GitHub and go to the Jenkins UI to configure where the pipeline would look when executing scripts. This location should be where the Jekinsfile is located.
+
+![Pipeline Configuration]
+
+- After saving your settings, click on **Scan Repository Now** for Jenkins to scan the selected repository to get the latest changes pushed to GitHub and also the branches that were created. Once this is done, you can either let the build run automatically or go into Blue Ocean and run it manually. See result of successful run below:
+
+![Test Build]
+
+- Install the Ansible plugin from the Jenkins store. This is the module that would make Jenkins be able to run Ansible scripts.
