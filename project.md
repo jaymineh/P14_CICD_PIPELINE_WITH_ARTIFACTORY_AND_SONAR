@@ -102,3 +102,79 @@
 ![Test Build]
 
 - Install the Ansible plugin from the Jenkins store. This is the module that would make Jenkins be able to run Ansible scripts.
+
+- Clear the contents of the first Jenkinsfile (or delete it and create a new one), then paste the code below into the Jenkinsfile:
+
+```
+pipeline {
+    agent any
+
+    parameters {
+      string(name: 'inventory', defaultValue: 'dev.yml',  description: 'This is the inventory file for the environment to deploy configuration')
+    }
+
+  stages {
+    stage("Initial Clean Up") {
+      steps {
+        dir("${WORKSPACE}") {
+           deleteDir()
+        }
+      }
+    }
+
+    stage('SCM Checkout') {
+      steps {
+        git branch: 'main', url: 'https://github.com/jaymineh/ansiblecfg.git'
+      }
+    }
+    
+    stage('Execute Playbook') {
+      steps {
+        withEnv(['ANSIBLE_CONFIG = ${WORKSPACE}/deploy/.ansible.cfg']) {
+          ansiblePlaybook credentialsId: 'private-key', disableHostKeyChecking: true, installation: 'ansible2', inventory: 'inventory/${inventory}', playbook: 'playbooks/site.yml', tags: 'webservers'
+        }
+      }
+    }
+  }
+}
+
+```
+
+*Notice that we included parameterization in the above code, which enables us to input the appropriate values for the inventory file we want to run the playbook against. See parameterization section below*
+
+```
+ parameters {
+      string(name: 'inventory', defaultValue: 'dev.yml',  description: 'This is the inventory file for the environment to deploy configuration')
+    }
+```
+
+![Parameterization on Jenkins UI]
+
+*The `Pipeline Syntax` in Jenkins can be used to generate pipeline script for a Jenkinsfile. IT is very good for learning how to properly structure a Jenkinsfile*
+
+- Before running the build job, go to the deploy folder on the local machine and create the `ansible.cfg` file. This is te environment variable where some configs and paths are declared within. It should be placed in the `deploy` folder alongside the `Jenkinsfile`. Paste the code below into the `Jenkinsfile`:
+
+```
+[defaults]
+roles_path=/opt/ansible/ansiblecfg/roles
+timeout = 160
+callback_whitelist = profile_tasks
+log_path=~/ansible.log
+host_key_checking = False
+gathering = smart
+ansible_python_interpreter=/usr/bin/python3
+allow_world_readable_tmpfiles=true
+
+
+[ssh_connection]
+ssh_args = -o ControlMaster=auto -o ControlPersist=30m -o ControlPath=/tmp/ansible-ssh-%h-%p-%r -o ServerAliveInterval=60 -o ServerAliveCountMax=60 -o ForwardAgent=yes
+```
+
+**Things To Note**
+---
+
+- You may sometimes notice that Jenkins does not download the latest code from GitHub (which may have a fix), and would continue runnig with errors. You can only detect this by checking the error log to know why it happened. The way to remediate this is by either running a cleanup step to clear the Jenkins workspace or logging into the Jenkins server and manually deleting the workspace folder in `var/lib/jenkins` and pull from GitHub into the Jenkins local server. That way, the workspace has the latest code to work with.
+
+- Jenkins may fail when a different branch is indicated in the `Jenkinsfile`, compared to the one the branch is being run with.
+
+
