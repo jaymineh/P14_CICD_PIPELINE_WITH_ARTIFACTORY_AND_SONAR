@@ -478,4 +478,88 @@ sudo unzip sonarqube-7.9.3.zip -d /opt
 sudo mv /opt/sonarqube-7.9.3 /opt/sonarqube
 ```
 
-- 
+- Create group called 'sonar' and add a user with control over the `/opt/sonarqube` directory.
+
+```
+sudo groupadd sonar
+sudo useradd -c "user to run SonarQube" -d /opt/sonarqube -g sonar sonar
+sudo chown sonar:sonar /opt/sonarqube -R
+```
+
+- Open the SonarQube config file `sudo vim /opt/sonarqube/conf/sonar.properties` and insert the following.
+
+```
+sonar.jdbc.username=sonar
+sonar.jdbc.password=sonar
+sonar.jdbc.url=jdbc:postgresql://localhost:5432/sonarqube
+```
+
+![Sonar Properties]
+
+- Edit the sonar script file and uncomment RUN_AS_USER to make it active.
+
+![Run As User]
+
+- To start SonarQube, do the following:
+
+```
+sudo su sonar
+cd /opt/sonarqube/bin/linux-x86-64/
+./sonar.sh start
+./sonar.sh status
+```
+
+- To check SonarQube logs, run `tail /opt/sonarqube/logs/sonar.log`
+
+- To configure SonarQube as a service, do the following:
+
+```
+cd /opt/sonarqube/bin/linux-x86-64/
+./sonar.sh stop
+exit
+sudo nano /etc/systemd/system/sonar.service
+```
+- Enter the code below into the sonar.service file
+
+```
+[Unit]
+Description=SonarQube service
+After=syslog.target network.target
+
+[Service]
+Type=forking
+
+ExecStart=/opt/sonarqube/bin/linux-x86-64/sonar.sh start
+ExecStop=/opt/sonarqube/bin/linux-x86-64/sonar.sh stop
+
+User=sonar
+Group=sonar
+Restart=always
+
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target
+```
+
+- Start and enable to SonarQube service
+
+```
+sudo systemctl start sonar
+sudo systemctl enable sonar
+sudo systemctl status sonar
+```
+
+- Access SonarQube through your browser by entering the following URL `http://<server_IP>:9000`. Ensure port 9000 is open in the NSG.
+
+![SonarQube Homepage]
+
+- Log in as admin
+
+![Logging In]
+
+![Logged In]
+
+**Step 6 - Configuring Jenkins For SonarQube Quality Gate**
+---
