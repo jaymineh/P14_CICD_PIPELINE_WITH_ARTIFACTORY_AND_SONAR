@@ -289,3 +289,193 @@ pipeline {
 
 **Step 4 - Structuring The Jenkinsfile**
 ---
+
+- Add the unit test stage in the Jenkinsfile.
+
+```
+stage('Execute Unit Tests') {
+      steps {
+             sh './vendor/bin/phpunit'
+      } 
+    }
+```
+
+![Unit Test Stage]
+
+- Add the code analysis stage with the phploc tool. Putput will be saved in build/logs/phploc.csv.
+
+```
+stage('Code Analysis') {
+      steps {
+        sh 'phploc app/ --log-csv build/logs/phploc.csv'
+
+      }
+    }
+```
+
+- Add the plot code coverage report stage.
+
+```
+ stage('Plot Code Coverage Report') {
+      steps {
+
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: true, exclusionValues: 'Lines of Code (LOC),Comment Lines of Code (CLOC),Non-Comment Lines of Code (NCLOC),Logical Lines of Code (LLOC)                          ', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'A - Lines of code', yaxis: 'Lines of Code'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: true, exclusionValues: 'Average Class Length (LLOC),Average Method Length (LLOC),Average Function Length (LLOC)', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'C - Average Length', yaxis: 'Average Lines of Code'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: true, exclusionValues: 'Directories,Files,Namespaces', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'B - Structures Containers', yaxis: 'Count'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: true, exclusionValues: 'Cyclomatic Complexity / Lines of Code,Cyclomatic Complexity / Number of Methods ', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'D - Relative Cyclomatic Complexity', yaxis: 'Cyclomatic Complexity by Structure'      
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: true, exclusionValues: 'Classes,Abstract Classes,Concrete Classes', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'E - Types of Classes', yaxis: 'Count'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: true, exclusionValues: 'Methods,Non-Static Methods,Static Methods,Public Methods,Non-Public Methods', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'F - Types of Methods', yaxis: 'Count'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: true, exclusionValues: 'Constants,Global Constants,Class Constants', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'G - Types of Constants', yaxis: 'Count'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: true, exclusionValues: 'Test Classes,Test Methods', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'I - Testing', yaxis: 'Count'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: true, exclusionValues: 'Logical Lines of Code (LLOC),Classes Length (LLOC),Functions Length (LLOC),LLOC outside functions or classes ', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'AB - Code Structure by Logical Lines of Code', yaxis: 'Logical Lines of Code'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: true, exclusionValues: 'Functions,Named Functions,Anonymous Functions', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'H - Types of Functions', yaxis: 'Count'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: true, exclusionValues: 'Interfaces,Traits,Classes,Methods,Functions,Constants', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'BB - Structure Objects', yaxis: 'Count'
+
+      }
+    }
+```
+
+- Add the package artifacts stage which archives the application code to be uploaded to Artifactory. Ensure zip` & `unzip` are installed on the Jenkins server else it will run into an error being unable to extract the .zip file.
+
+```
+stage ('Package Artifact') {
+    steps {
+            sh 'zip -qr todophp.zip ${WORKSPACE}/*'
+     }
+    }
+```
+
+- Add the uploading artifact to artifactory stage. Ensure the pattern and the target are the same as was specified in the earlier created artifactory repository.
+
+```
+ {
+       steps {
+               script { 
+	                           stage('Upload Artifact to Artifactory') def server = Artifactory.server 'php-artifactory'                 
+                def uploadSpec = """{
+                    "files": [
+                      {
+                       "pattern": "todophp.zip",
+                       "target": "php-artifactory",
+                       "props": "type=zip;status=ready"
+
+                      }
+                    ]
+                }""" 
+
+              server.upload spec: uploadSpec
+        }
+      }
+    }
+```
+
+- Added the deploy to dev environment by launching the ansible pipeline job (ansiblecfg). Ensure the inventory file (dev.yml) contains the private IP of the intended servers and the site.yml is updated with the play.
+
+```
+stage ('Deploy to Dev Environment') {
+    steps {
+    build job: 'ansible-project/main', parameters: [[$class: 'StringParameterValue', name: 'env', value: 'dev']], propagate: false, wait: true
+    }
+  }
+```
+
+![Completed Build]
+
+**Step 5 - Setting Up The SonarQube Server**
+---
+
+*SonarQube is a tool that is used to create quality gates for software projects, with the ultimate goal of being able to ship quality software code*
+
+*SonarQube can be installed in 2 ways; one is using an ansible role to automate the installation and the other is installing manually. I did both and will show both*
+
+***Automated***
+
+- Use `ansible galaxy` to install SonarQube. `ansible-galaxy install lrk.sonarqube`
+
+***Manual***
+
+- On the SonarQube server, perform the following command to make the session changes persist to ensure optimal performance of the tool.
+
+```
+$ sudo sysctl -w vm.max_map_count=262144
+$ sudo sysctl -w fs.file-max=65536
+$ ulimit -n 65536
+$ ulimit -u 4096
+```
+
+- To make the changes permanent, edit the `limits.conf` file in `/etc/security/limits.conf` and enter the following.
+
+```
+sonarqube   -   nofile   65536
+sonarqube   -   nproc    4096
+
+```
+
+- Update and upgrade the server.
+
+- Install wget, zip and unzip.
+
+```
+sudo yum install wget zip unzip -y
+```
+
+- Install OpenJDK and JRE 11.
+
+```
+sudo yum install openjdk-11-jdk -y
+```
+
+- Verify that java is installed and what version is installed.
+
+```
+java --version
+```
+
+- Install PostgresQL on the SonarQube server.
+
+```
+sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+sudo dnf -qy module disable postgresql
+sudo dnf install -y postgresql15-server
+sudo /usr/pgsql-15/bin/postgresql-15-setup initdb
+sudo systemctl enable postgresql-15
+sudo systemctl start postgresql-15
+```
+
+- Change password for default postgres user.
+
+```
+sudo passwd postgres
+```
+
+- Switch to the postgres user and create a new user called 'sonar'.
+
+```
+su - postgres
+createuser sonar
+```
+
+- Activate the postgresql shell with `psql`.
+
+- Run the following commands to change password for newly created user for SonarQube, create a new database and grant all privileges to the new 'sonar' user on the SonarQube DB.
+
+```
+ALTER USER sonar WITH ENCRYPTED password 'sonar';
+CREATE DATABASE sonarqube OWNER sonar;
+grant all privileges on DATABASE sonarqube to sonar;
+```
+
+- Run the command below to download the SonarQube installation file.
+
+```
+cd /tmp && sudo wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-7.9.3.zip
+```
+
+- Unzip the archive setup to the '/opt' directory and rename the extracted folder
+
+```
+sudo unzip sonarqube-7.9.3.zip -d /opt
+sudo mv /opt/sonarqube-7.9.3 /opt/sonarqube
+```
+
+- 
