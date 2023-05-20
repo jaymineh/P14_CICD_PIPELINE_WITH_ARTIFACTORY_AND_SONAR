@@ -170,11 +170,34 @@ allow_world_readable_tmpfiles=true
 ssh_args = -o ControlMaster=auto -o ControlPersist=30m -o ControlPath=/tmp/ansible-ssh-%h-%p-%r -o ServerAliveInterval=60 -o ServerAliveCountMax=60 -o ForwardAgent=yes
 ```
 
-**Things To Note**
+- Run the Jenkins job. Confirm that ansible runs against all hosts.
+![Ansible Run]
+
+*I was having this error `fatal: [10.0.12.51]: FAILED! => {"ansible_facts": {}, "changed": false, "failed_modules": {"ansible.legacy.setup": {"failed": true, "module_stderr": "Shared connection to 10.0.12.51 closed.\r\n", "module_stdout": "\r\n/bin/sh: 1: /usr/bin/python: not found\r\n", "msg": "The module failed to execute correctly, you probably need to set the interpreter.\nSee stdout/stderr for the exact error", "rc": 127}}, "msg": "The following modules failed to execute: ansible.legacy.setup\n"}` o the database server saying that python couldn't be found. Despite trying reinstalling the exact python version needed and declaring the path, the issue persisted. However the issue went away when I created a new database based on RHEL as this one with the error was based on Ubuntu*
+
+***Things To Note***
 ---
 
 - You may sometimes notice that Jenkins does not download the latest code from GitHub (which may have a fix), and would continue runnig with errors. You can only detect this by checking the error log to know why it happened. The way to remediate this is by either running a cleanup step to clear the Jenkins workspace or logging into the Jenkins server and manually deleting the workspace folder in `var/lib/jenkins` and pull from GitHub into the Jenkins local server. That way, the workspace has the latest code to work with.
 
 - Jenkins may fail when a different branch is indicated in the `Jenkinsfile`, compared to the one the branch is being run with.
+
+**Step 2 - Setting Up The Artifactory Server**
+---
+
+*The tooling website has already been deployed through Ansible. Here, another PHP application will be introduced to the list of spftwares being managed in the infrastructure. This is also an ideal application to show an end-to-end CI/CD pipeline as this has unit tests*
+
+*The goal here is to deploy the applications from Artifactory rather than Git. This can be done using an Artifactory server in the cloud or one you set up locally. I used the cloud variant in this example*
+
+- Go to `https://artifactory.jfrog.io` and create an account. Next, create a new `local repository` where artifacts will be uploaded to from the Jenkins server.
+
+![Artifactory Setup 1]
+
+![Artifactory Setup 2]
+
+*The above images are examples and not the exact names of the repo I created*
+
+**Step 3 - Integrating Artifactory Repo With Jenkins**
+---
 
 
