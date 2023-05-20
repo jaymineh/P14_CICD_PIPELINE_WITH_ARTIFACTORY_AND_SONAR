@@ -173,7 +173,7 @@ ssh_args = -o ControlMaster=auto -o ControlPersist=30m -o ControlPath=/tmp/ansib
 - Run the Jenkins job. Confirm that ansible runs against all hosts.
 ![Ansible Run]
 
-*I was having this error `fatal: [10.0.12.51]: FAILED! => {"ansible_facts": {}, "changed": false, "failed_modules": {"ansible.legacy.setup": {"failed": true, "module_stderr": "Shared connection to 10.0.12.51 closed.\r\n", "module_stdout": "\r\n/bin/sh: 1: /usr/bin/python: not found\r\n", "msg": "The module failed to execute correctly, you probably need to set the interpreter.\nSee stdout/stderr for the exact error", "rc": 127}}, "msg": "The following modules failed to execute: ansible.legacy.setup\n"}` o the database server saying that python couldn't be found. Despite trying reinstalling the exact python version needed and declaring the path, the issue persisted. However the issue went away when I created a new database based on RHEL as this one with the error was based on Ubuntu*
+*I was having this error `fatal: [10.0.12.51]: FAILED! => {"ansible_facts": {}, "changed": false, "failed_modules": {"ansible.legacy.setup": {"failed": true, "module_stderr": "Shared connection to 10.0.12.51 closed.\r\n", "module_stdout": "\r\n/bin/sh: 1: /usr/bin/python: not found\r\n", "msg": "The module failed to execute correctly, you probably need to set the interpreter.\nSee stdout/stderr for the exact error", "rc": 127}}, "msg": "The following modules failed to execute: ansible.legacy.setup\n"}` on the database server saying that python couldn't be found. Despite trying reinstalling the exact python version needed and declaring the path, the issue persisted. However the issue went away when I created a new database based on RHEL as this one with the error was based on Ubuntu*
 
 ***Things To Note***
 ---
@@ -200,4 +200,92 @@ ssh_args = -o ControlMaster=auto -o ControlPersist=30m -o ControlPath=/tmp/ansib
 **Step 3 - Integrating Artifactory Repo With Jenkins**
 ---
 
+- Install the `Plot` plugin on Jenkins to display test reports, code coverage and artifactory plugins.
 
+- Configure Artifactory in Jenkins for syncronization.
+
+![Artifactory Config]
+
+![Artifactory Config 2]
+
+- Fork this repository `https://github.com/darey-devops/php-todo.git`.
+
+- Created a new database and user
+
+```
+Create database homestead;
+CREATE USER 'vergil'@'<Jenkins-ip-address>' IDENTIFIED BY 'spardason';
+GRANT ALL PRIVILEGES ON * . * TO 'vergil'@'<Jenkins-ip-address>';
+```
+
+*Ensure to configure `bind_address` in the `my.cnf` file to `0.0.0.0 and port 3306 is open in the security group*
+
+![Bind Address]
+
+- Install PHP on the Jenkins server. *Ran into an issue where the default PHP version I had installed (v8) was too high. HAd to install v7.4 specifically. Got info from `https://www.tecmint.com/install-different-php-versions-in-ubuntu/`*
+
+- Install PHP composer globally on Jenkins server.
+
+```
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+php -r "if (hash_file('sha384', 'composer-setup.php') === '55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+php composer-setup.php
+php -r "unlink('composer-setup.php');"
+sudo mv composer.phar /usr/local/bin/composer
+```
+
+- Update the `.env.sample` file with database server information.
+
+![Database Information]
+
+- Create a new Jenkinsfile for the previously forked repo on the main branch. The repo is now known as `todo`. Insert the code below into the Jenkinsfile.
+
+```
+pipeline {
+    agent any
+
+ stages {
+
+    stage("Initial cleanup") {
+      steps {
+        dir("${WORKSPACE}") {
+            deleteDir()
+        }
+      }
+    }
+
+    stage('Checkout SCM') {
+      steps {
+            git branch: 'main', url: 'https://github.com/jaymineh/todo.git'
+      }
+    }
+
+    stage('Prepare Dependencies') {
+      steps {
+             sh 'mv .env.sample .env'
+             sh 'composer install'
+             sh 'php artisan migrate'
+             sh 'php artisan db:seed'
+             sh 'php artisan key:generate'
+      }
+    }
+  }
+}
+```
+
+- Create a new pipeline job from Jenkins (Blue Ocean). Job name is `todophp`. Run the pipeline after.
+
+![Todophp Success]
+
+- After the above is completed, confirm by logging  into the database server and running the `show databases;` command to see the available databases. Select the `homestead` database by using use homestead;` and use `show tables` to display the inserted tables in the database.
+
+*I ran into an error saying `composer not found` even when I installed composer on the server. I was able to resolve this by installing composer globally as my guess is that Jenkins was not able to call the composer tool properly*
+
+![Composer Not Found]
+
+*I ran into another error which was permissions based. Jenkins was not being allowed to insert into the database. I tried changing permissions and even tried logging into the database with the same credential but I still faced the error. I realized I was pointing to the old Ubuntu database. This issue went away when I pointed to the new RHEL database. It looks like there are a lot of issues when using MYSQL on Ubuntu based machines.
+
+![Access Denied]
+
+**Step 4 - Structuring The Jenkinsfile**
+---
