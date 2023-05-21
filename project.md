@@ -563,3 +563,100 @@ sudo systemctl status sonar
 
 **Step 6 - Configuring Jenkins For SonarQube Quality Gate**
 ---
+
+- Generate an authentication token in the SonarQube server. Navigate fromo **My Account** to **Security**.
+
+- Configure Quality Gate Jenkins Webhook in SonarQube by navigating from the **Administration** page to **Webhook**. Create a webhook by specifying the URL as `http://<Jenkins-IP-Address>/sonarqube-webhook/
+
+- Install the SonarScanner plugin in Jenkins.
+
+- Go to the **Configure System** in Jenkins to add the SonarQube server details with the generated token.
+
+![SonarQube Servers]
+
+- Configure the SonarQube scanner in **Global Tool Configuration**.
+
+![SonarQube Scanner]
+
+- Update the Jenkinsfile to include SonarQube Scanning and Quality Gate.
+
+```
+stage('SonarQube Quality Gate') {
+      environment {
+          scannerHome = tool 'SonarQubeScanner'
+      }
+        steps {
+          withSonarQubeEnv('sonarqube') {
+              sh "${scannerHome}/bin/sonar-scanner"
+          }
+
+        }
+    }
+    
+```
+
+- Configure the `sonar-scanner.properties` file in which SonarQube will require to function during pipeline execution `sudo vim /var/lib/jenkins/tools/hudson.plugins.sonar.SonarRunnerInstallation/SonarQubeScanner/conf/sonar-scanner.properties`.
+
+- Enter the configuration below.
+
+```
+sonar.host.url=http://<SonarQube-Server-IP-address>:9000
+sonar.projectKey=php-todo
+#----- Default source code encoding
+sonar.sourceEncoding=UTF-8
+sonar.php.exclusions=**/vendor/**
+sonar.php.coverage.reportPaths=build/logs/clover.xml
+sonar.php.tests.reportPath=build/logs/junit.xml
+
+```
+
+*The pipeline will fail if this configuration is not done*
+
+![Sonar Properties Error]
+
+**Step 7 - Running The Pipeline Job**
+---
+
+- Upload your code to gitHub and click on **scan repository now** to get the latest changes so Jenkins can start the pipeline job.
+
+![Pipeline Success]
+
+![Sonar Success]
+
+*I ran into an error saying it couldn't find node.js even when it was installed. Tried again and it ran*
+
+![Pipeline Error]
+
+- Add this code to the existing Jenkinsfile to ensure that only the pipeline job that is run on the specified branch (be it main, develop etc) makes it ti the deploy stage. 
+
+```
+ stage('SonarQube Quality Gate') {
+      when { branch pattern: "^develop*|^hotfix*|^release*|^main*", comparator: "REGEXP"}
+        environment {
+            scannerHome = tool 'SonarQubeScanner'
+        }
+        steps {
+            withSonarQubeEnv('sonarqube') {
+                sh "${scannerHome}/bin/sonar-scanner -Dproject.settings=sonar-project.properties -Dsonar.projectKey=php-todo"
+            }
+            timeout(time: 1, unit: 'MINUTES') {
+                waitForQualityGate abortPipeline: true
+            }
+        }
+    }
+```
+
+![Condition]
+
+![Failed Condition]
+
+*The above result shows that there are bugs and there is 0.0% code coverage (unit tests added by developers to test functions and objects in the code) and 6 hours worth of technical debt, code smells and security issues in the code. The above result showed that the quality gate step failed because the conditions for quality were not met.*
+
+*This can be seen as a basic GitFlow implementation as the above implementation restricts the deployment of code from unauthorized branches*
+
+
+
+Step 8 - Running The Pipeline Job With 2 Jenkins Agents/Slaves (Nodes)
+---
+
+-
