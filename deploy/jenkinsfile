@@ -32,6 +32,14 @@ pipeline {
 	} 
       }
 
+      stage('Run Ansible playbook2') {
+        steps {
+          withEnv (['ANSIBLE_CONFIG = ${WORKSPACE}/deploy/ansible.cfg']){
+           ansiblePlaybook become: true, colorized: true, credentialsId: 'private-key', disableHostKeyChecking: true, installation: 'ansible', inventory: "inventory/${inventory}", playbook: 'playbooks/site2.yml'
+         }
+        }
+      }
+
       stage('Clean Workspace after build'){
         steps{
           cleanWs(cleanWhenAborted: true, cleanWhenFailure: true, cleanWhenNotBuilt: true, cleanWhenUnstable: true, deleteDirs: true)
