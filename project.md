@@ -33,13 +33,13 @@
 
 *Ensure that the repository you choose has a `Jenkinsfile` present before you create the pipeline. Jenkins will automatically recommend creating a `Jenkinsfile` for you if it does not detect one in the repo*
 
-![Pipeline Build From Blue Ocean]
+![Pipeline Build From Blue Ocean](blueocean.png)
 
 - In the `ansiblecfg` root directory, create a folder called `deploy`. Go into the `deploy` folder and create a `Jenkinsfile` and switch to a new git branch called `feature/jenkinspipeline`
 
-![Jenkinsfile Location]
+![Jenkinsfile Location](jenkinsfile.png)
 
-![Feature Branch]
+![Feature Branch](featurebranch.png)
 
 - Insert the code below into the `Jenkinsfile` that was just created. This is done to test if the pipeline is configured correctly and working properly. The script itself does nothing and is just an echo shell script.
 
@@ -95,11 +95,11 @@
 
 - After adding the above code to the Jenkinsfile, push to GitHub and go to the Jenkins UI to configure where the pipeline would look when executing scripts. This location should be where the Jekinsfile is located.
 
-![Pipeline Configuration]
+![Pipeline Configuration](scriptpath.png)
 
 - After saving your settings, click on **Scan Repository Now** for Jenkins to scan the selected repository to get the latest changes pushed to GitHub and also the branches that were created. Once this is done, you can either let the build run automatically or go into Blue Ocean and run it manually. See result of successful run below:
 
-![Test Build]
+![Test Build](testbuild.png)
 
 - Install the Ansible plugin from the Jenkins store. This is the module that would make Jenkins be able to run Ansible scripts.
 
@@ -148,9 +148,11 @@ pipeline {
     }
 ```
 
-![Parameterization on Jenkins UI]
+![Parameterization on Jenkins UI](parameterization.png)
 
-*The `Pipeline Syntax` in Jenkins can be used to generate pipeline script for a Jenkinsfile. IT is very good for learning how to properly structure a Jenkinsfile*
+*The `Pipeline Syntax` in Jenkins can be used to generate pipeline script for a Jenkinsfile. It is very good for learning how to properly structure a Jenkinsfile*
+
+![Pipeline Syntax](pipelinesyntax.png)
 
 - Before running the build job, go to the deploy folder on the local machine and create the `ansible.cfg` file. This is te environment variable where some configs and paths are declared within. It should be placed in the `deploy` folder alongside the `Jenkinsfile`. Paste the code below into the `Jenkinsfile`:
 
@@ -171,7 +173,7 @@ ssh_args = -o ControlMaster=auto -o ControlPersist=30m -o ControlPath=/tmp/ansib
 ```
 
 - Run the Jenkins job. Confirm that ansible runs against all hosts.
-![Ansible Run]
+![Ansible Run](ansiblerun.png)
 
 *I was having this error `fatal: [10.0.12.51]: FAILED! => {"ansible_facts": {}, "changed": false, "failed_modules": {"ansible.legacy.setup": {"failed": true, "module_stderr": "Shared connection to 10.0.12.51 closed.\r\n", "module_stdout": "\r\n/bin/sh: 1: /usr/bin/python: not found\r\n", "msg": "The module failed to execute correctly, you probably need to set the interpreter.\nSee stdout/stderr for the exact error", "rc": 127}}, "msg": "The following modules failed to execute: ansible.legacy.setup\n"}` on the database server saying that python couldn't be found. Despite trying reinstalling the exact python version needed and declaring the path, the issue persisted. However the issue went away when I created a new database based on RHEL as this one with the error was based on Ubuntu*
 
@@ -191,9 +193,9 @@ ssh_args = -o ControlMaster=auto -o ControlPersist=30m -o ControlPath=/tmp/ansib
 
 - Go to `https://artifactory.jfrog.io` and create an account. Next, create a new `local repository` where artifacts will be uploaded to from the Jenkins server.
 
-![Artifactory Setup 1]
+![Artifactory Setup 1](artifactorysetup1.png)
 
-![Artifactory Setup 2]
+![Artifactory Setup 2](artifactorysetup2.png)
 
 *The above images are examples and not the exact names of the repo I created*
 
@@ -204,9 +206,9 @@ ssh_args = -o ControlMaster=auto -o ControlPersist=30m -o ControlPath=/tmp/ansib
 
 - Configure Artifactory in Jenkins for syncronization.
 
-![Artifactory Config]
+![Artifactory Config](artifactoryconfig.png)
 
-![Artifactory Config 2]
+![Artifactory Config 2](artifactoryconfig2.png)
 
 - Fork this repository `https://github.com/darey-devops/php-todo.git`.
 
@@ -220,7 +222,7 @@ GRANT ALL PRIVILEGES ON * . * TO 'vergil'@'<Jenkins-ip-address>';
 
 *Ensure to configure `bind_address` in the `my.cnf` file to `0.0.0.0 and port 3306 is open in the security group*
 
-![Bind Address]
+![Bind Address](bindaddress.png)
 
 - Install PHP on the Jenkins server. *Ran into an issue where the default PHP version I had installed (v8) was too high. HAd to install v7.4 specifically. Got info from `https://www.tecmint.com/install-different-php-versions-in-ubuntu/`*
 
@@ -236,7 +238,7 @@ sudo mv composer.phar /usr/local/bin/composer
 
 - Update the `.env.sample` file with database server information.
 
-![Database Information]
+![Database Information](envsample.png)
 
 - Create a new Jenkinsfile for the previously forked repo on the main branch. The repo is now known as `todo`. Insert the code below into the Jenkinsfile.
 
@@ -275,17 +277,17 @@ pipeline {
 
 - Create a new pipeline job from Jenkins (Blue Ocean). Job name is `todophp`. Run the pipeline after.
 
-![Todophp Success]
+![Todophp Success](todophp.png)
 
 - After the above is completed, confirm by logging  into the database server and running the `show databases;` command to see the available databases. Select the `homestead` database by using use homestead;` and use `show tables` to display the inserted tables in the database.
 
 *I ran into an error saying `composer not found` even when I installed composer on the server. I was able to resolve this by installing composer globally as my guess is that Jenkins was not able to call the composer tool properly*
 
-![Composer Not Found]
+![Composer Not Found](composernotfound.png)
 
 *I ran into another error which was permissions based. Jenkins was not being allowed to insert into the database. I tried changing permissions and even tried logging into the database with the same credential but I still faced the error. I realized I was pointing to the old Ubuntu database. This issue went away when I pointed to the new RHEL database. It looks like there are a lot of issues when using MYSQL on Ubuntu based machines.
 
-![Access Denied]
+![Access Denied](accessdenied.png)
 
 **Step 4 - Structuring The Jenkinsfile**
 ---
@@ -299,8 +301,6 @@ stage('Execute Unit Tests') {
       } 
     }
 ```
-
-![Unit Test Stage]
 
 - Add the code analysis stage with the phploc tool. Putput will be saved in build/logs/phploc.csv.
 
@@ -379,7 +379,7 @@ stage ('Deploy to Dev Environment') {
   }
 ```
 
-![Completed Build]
+![Completed Build](completedstep.png)
 
 **Step 5 - Setting Up The SonarQube Server**
 ---
@@ -494,11 +494,11 @@ sonar.jdbc.password=sonar
 sonar.jdbc.url=jdbc:postgresql://localhost:5432/sonarqube
 ```
 
-![Sonar Properties]
+![Sonar Properties](sonarproperties.png)
 
 - Edit the sonar script file and uncomment RUN_AS_USER to make it active.
 
-![Run As User]
+![Run As User](runasuser.png)
 
 - To start SonarQube, do the following:
 
@@ -553,13 +553,13 @@ sudo systemctl status sonar
 
 - Access SonarQube through your browser by entering the following URL `http://<server_IP>:9000`. Ensure port 9000 is open in the NSG.
 
-![SonarQube Homepage]
+![SonarQube Homepage](sonarqubehome.png)
 
 - Log in as admin
 
-![Logging In]
+![Logging In](sonarlogin1.png)
 
-![Logged In]
+![Logged In](sonarlogin2.php)
 
 **Step 6 - Configuring Jenkins For SonarQube Quality Gate**
 ---
@@ -572,7 +572,7 @@ sudo systemctl status sonar
 
 - Go to the **Configure System** in Jenkins to add the SonarQube server details with the generated token.
 
-![SonarQube Servers]
+![SonarQube Servers](sonarqubeserver.png)
 
 - Configure the SonarQube scanner in **Global Tool Configuration**.
 
@@ -653,7 +653,6 @@ sonar.php.tests.reportPath=build/logs/junit.xml
 *The above result shows that there are bugs and there is 0.0% code coverage (unit tests added by developers to test functions and objects in the code) and 6 hours worth of technical debt, code smells and security issues in the code. The above result showed that the quality gate step failed because the conditions for quality were not met.*
 
 *This can be seen as a basic GitFlow implementation as the above implementation restricts the deployment of code from unauthorized branches*
-
 
 
 Step 8 - Running The Pipeline Job With 2 Jenkins Agents/Slaves (Nodes)
