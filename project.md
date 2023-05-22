@@ -659,4 +659,21 @@ sonar.php.tests.reportPath=build/logs/junit.xml
 Step 8 - Running The Pipeline Job With 2 Jenkins Agents/Slaves (Nodes)
 ---
 
--
+- Create a new node and name it `sonar1`. Configue the node and set the label as `slaveNode1`. ensure the configuration for the node looks like the picture below:
+
+![Slave Node](slavenode1.png)
+
+*Ensure the **remote root directory** and credentials are correct as it will lead to an authentication error when trying to launch the node*
+
+- Create a new node named `sonar2`. This can be cloned from `sonar1` but the label should be updated to `slaveNode2`.
+
+- Update Jenkinsfile with code below to be able to run the pipeline on two nodes.
+
+```
+pipeline {
+    agent  { label 'slaveNode1' }
+```
+
+- Refresh the repo on Jenkins and execute the pipeline job. Monitor the run of both nodes until completion.
+
+![Slave Nodes Run](nodes.png)
