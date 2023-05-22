@@ -576,7 +576,7 @@ sudo systemctl status sonar
 
 - Configure the SonarQube scanner in **Global Tool Configuration**.
 
-![SonarQube Scanner]
+![SonarQube Scanner](sonarqubescanner.png)
 
 - Update the Jenkinsfile to include SonarQube Scanning and Quality Gate.
 
@@ -612,20 +612,20 @@ sonar.php.tests.reportPath=build/logs/junit.xml
 
 *The pipeline will fail if this configuration is not done*
 
-![Sonar Properties Error]
+![Sonar Properties Error](sonarerror.png)
 
 **Step 7 - Running The Pipeline Job**
 ---
 
 - Upload your code to gitHub and click on **scan repository now** to get the latest changes so Jenkins can start the pipeline job.
 
-![Pipeline Success]
+![Pipeline Success](pipelinesuccess.png)
 
-![Sonar Success]
+![Sonar Success](sonarsuccess.png)
 
 *I ran into an error saying it couldn't find node.js even when it was installed. Tried again and it ran*
 
-![Pipeline Error]
+![Pipeline Error](pipelineerror.png)
 
 - Add this code to the existing Jenkinsfile to ensure that only the pipeline job that is run on the specified branch (be it main, develop etc) makes it ti the deploy stage. 
 
@@ -646,9 +646,9 @@ sonar.php.tests.reportPath=build/logs/junit.xml
     }
 ```
 
-![Condition]
+![Condition](condition.png)
 
-![Failed Condition]
+![Failed Condition](failedsonar.png)
 
 *The above result shows that there are bugs and there is 0.0% code coverage (unit tests added by developers to test functions and objects in the code) and 6 hours worth of technical debt, code smells and security issues in the code. The above result showed that the quality gate step failed because the conditions for quality were not met.*
 
