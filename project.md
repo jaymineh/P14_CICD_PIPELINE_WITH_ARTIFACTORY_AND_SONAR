@@ -676,3 +676,5 @@ pipeline {
 - Refresh the repo on Jenkins and execute the pipeline job. Monitor the run of both nodes until completion.
 
 ![Slave Nodes Run](nodes.png)
+
+**Project 14 Deployed Successfully!**
