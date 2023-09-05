@@ -277,17 +277,17 @@ pipeline {
 
 - Create a new pipeline job from Jenkins (Blue Ocean). Job name is `todophp`. Run the pipeline after.
 
-![Todophp Success](todophp.png)
+![Todophp Success](images/todophp.png)
 
 - After the above is completed, confirm by logging  into the database server and running the `show databases;` command to see the available databases. Select the `homestead` database by using use homestead;` and use `show tables` to display the inserted tables in the database.
 
 *I ran into an error saying `composer not found` even when I installed composer on the server. I was able to resolve this by installing composer globally as my guess is that Jenkins was not able to call the composer tool properly*
 
-![Composer Not Found](composernotfound.png)
+![Composer Not Found](images/composernotfound.png)
 
 *I ran into another error which was permissions based. Jenkins was not being allowed to insert into the database. I tried changing permissions and even tried logging into the database with the same credential but I still faced the error. I realized I was pointing to the old Ubuntu database. This issue went away when I pointed to the new RHEL database. It looks like there are a lot of issues when using MYSQL on Ubuntu based machines.
 
-![Access Denied](accessdenied.png)
+![Access Denied](images/accessdenied.png)
 
 **Step 4 - Structuring The Jenkinsfile**
 ---
@@ -379,7 +379,7 @@ stage ('Deploy to Dev Environment') {
   }
 ```
 
-![Completed Build](completedstep.png)
+![Completed Build](images/completedstep.png)
 
 **Step 5 - Setting Up The SonarQube Server**
 ---
@@ -494,11 +494,11 @@ sonar.jdbc.password=sonar
 sonar.jdbc.url=jdbc:postgresql://localhost:5432/sonarqube
 ```
 
-![Sonar Properties](sonarproperties.png)
+![Sonar Properties](images/sonarproperties.png)
 
 - Edit the sonar script file and uncomment RUN_AS_USER to make it active.
 
-![Run As User](runasuser.png)
+![Run As User](images/runasuser.png)
 
 - To start SonarQube, do the following:
 
@@ -553,13 +553,13 @@ sudo systemctl status sonar
 
 - Access SonarQube through your browser by entering the following URL `http://<server_IP>:9000`. Ensure port 9000 is open in the NSG.
 
-![SonarQube Homepage](sonarqubehome.png)
+![SonarQube Homepage](images/sonarqubehome.png)
 
 - Log in as admin
 
-![Logging In](sonarlogin1.png)
+![Logging In](images/sonarlogin1.png)
 
-![Logged In](sonarlogin2.php)
+![Logged In](images/sonarlogin2.php)
 
 **Step 6 - Configuring Jenkins For SonarQube Quality Gate**
 ---
@@ -572,11 +572,11 @@ sudo systemctl status sonar
 
 - Go to the **Configure System** in Jenkins to add the SonarQube server details with the generated token.
 
-![SonarQube Servers](sonarqubeserver.png)
+![SonarQube Servers](images/sonarqubeserver.png)
 
 - Configure the SonarQube scanner in **Global Tool Configuration**.
 
-![SonarQube Scanner](sonarqubescanner.png)
+![SonarQube Scanner](images/sonarqubescanner.png)
 
 - Update the Jenkinsfile to include SonarQube Scanning and Quality Gate.
 
