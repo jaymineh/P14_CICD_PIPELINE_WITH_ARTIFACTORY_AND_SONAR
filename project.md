@@ -612,20 +612,20 @@ sonar.php.tests.reportPath=build/logs/junit.xml
 
 *The pipeline will fail if this configuration is not done*
 
-![Sonar Properties Error](sonarerror.png)
+![Sonar Properties Error](images/sonarerror.png)
 
 **Step 7 - Running The Pipeline Job**
 ---
 
 - Upload your code to gitHub and click on **scan repository now** to get the latest changes so Jenkins can start the pipeline job.
 
-![Pipeline Success](pipelinesuccess.png)
+![Pipeline Success](images/pipelinesuccess.png)
 
-![Sonar Success](sonarsuccess.png)
+![Sonar Success](images/sonarsuccess.png)
 
 *I ran into an error saying it couldn't find node.js even when it was installed. Tried again and it ran*
 
-![Pipeline Error](pipelineerror.png)
+![Pipeline Error](images/pipelineerror.png)
 
 - Add this code to the existing Jenkinsfile to ensure that only the pipeline job that is run on the specified branch (be it main, develop etc) makes it ti the deploy stage. 
 
@@ -646,9 +646,9 @@ sonar.php.tests.reportPath=build/logs/junit.xml
     }
 ```
 
-![Condition](condition.png)
+![Condition](images/condition.png)
 
-![Failed Condition](failedsonar.png)
+![Failed Condition](images/failedsonar.png)
 
 *The above result shows that there are bugs and there is 0.0% code coverage (unit tests added by developers to test functions and objects in the code) and 6 hours worth of technical debt, code smells and security issues in the code. The above result showed that the quality gate step failed because the conditions for quality were not met.*
 
@@ -660,7 +660,7 @@ Step 8 - Running The Pipeline Job With 2 Jenkins Agents/Slaves (Nodes)
 
 - Create a new node and name it `sonar1`. Configue the node and set the label as `slaveNode1`. ensure the configuration for the node looks like the picture below:
 
-![Slave Node](slavenode1.png)
+![Slave Node](images/slavenode1.png)
 
 *Ensure the **remote root directory** and credentials are correct as it will lead to an authentication error when trying to launch the node*
 
@@ -675,6 +675,6 @@ pipeline {
 
 - Refresh the repo on Jenkins and execute the pipeline job. Monitor the run of both nodes until completion.
 
-![Slave Nodes Run](nodes.png)
+![Slave Nodes Run](images/nodes.png)
 
 **Project 14 Deployed Successfully!**
