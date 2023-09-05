@@ -33,13 +33,13 @@
 
 *Ensure that the repository you choose has a `Jenkinsfile` present before you create the pipeline. Jenkins will automatically recommend creating a `Jenkinsfile` for you if it does not detect one in the repo*
 
-![Pipeline Build From Blue Ocean](blueocean.png)
+![Pipeline Build From Blue Ocean](images/blueocean.png)
 
 - In the `ansiblecfg` root directory, create a folder called `deploy`. Go into the `deploy` folder and create a `Jenkinsfile` and switch to a new git branch called `feature/jenkinspipeline`
 
-![Jenkinsfile Location](jenkinsfile.png)
+![Jenkinsfile Location](images/jenkinsfile.png)
 
-![Feature Branch](featurebranch.png)
+![Feature Branch](images/featurebranch.png)
 
 - Insert the code below into the `Jenkinsfile` that was just created. This is done to test if the pipeline is configured correctly and working properly. The script itself does nothing and is just an echo shell script.
 
@@ -95,11 +95,11 @@
 
 - After adding the above code to the Jenkinsfile, push to GitHub and go to the Jenkins UI to configure where the pipeline would look when executing scripts. This location should be where the Jekinsfile is located.
 
-![Pipeline Configuration](scriptpath.png)
+![Pipeline Configuration](images/scriptpath.png)
 
 - After saving your settings, click on **Scan Repository Now** for Jenkins to scan the selected repository to get the latest changes pushed to GitHub and also the branches that were created. Once this is done, you can either let the build run automatically or go into Blue Ocean and run it manually. See result of successful run below:
 
-![Test Build](testbuild.png)
+![Test Build](images/testbuild.png)
 
 - Install the Ansible plugin from the Jenkins store. This is the module that would make Jenkins be able to run Ansible scripts.
 
@@ -148,11 +148,11 @@ pipeline {
     }
 ```
 
-![Parameterization on Jenkins UI](parameterization.png)
+![Parameterization on Jenkins UI](images/parameterization.png)
 
 *The `Pipeline Syntax` in Jenkins can be used to generate pipeline script for a Jenkinsfile. It is very good for learning how to properly structure a Jenkinsfile*
 
-![Pipeline Syntax](pipelinesyntax.png)
+![Pipeline Syntax](images/pipelinesyntax.png)
 
 - Before running the build job, go to the deploy folder on the local machine and create the `ansible.cfg` file. This is te environment variable where some configs and paths are declared within. It should be placed in the `deploy` folder alongside the `Jenkinsfile`. Paste the code below into the `Jenkinsfile`:
 
@@ -173,7 +173,7 @@ ssh_args = -o ControlMaster=auto -o ControlPersist=30m -o ControlPath=/tmp/ansib
 ```
 
 - Run the Jenkins job. Confirm that ansible runs against all hosts.
-![Ansible Run](ansiblerun.png)
+![Ansible Run](images/ansiblerun.png)
 
 *I was having this error `fatal: [10.0.12.51]: FAILED! => {"ansible_facts": {}, "changed": false, "failed_modules": {"ansible.legacy.setup": {"failed": true, "module_stderr": "Shared connection to 10.0.12.51 closed.\r\n", "module_stdout": "\r\n/bin/sh: 1: /usr/bin/python: not found\r\n", "msg": "The module failed to execute correctly, you probably need to set the interpreter.\nSee stdout/stderr for the exact error", "rc": 127}}, "msg": "The following modules failed to execute: ansible.legacy.setup\n"}` on the database server saying that python couldn't be found. Despite trying reinstalling the exact python version needed and declaring the path, the issue persisted. However the issue went away when I created a new database based on RHEL as this one with the error was based on Ubuntu*
 
@@ -193,9 +193,9 @@ ssh_args = -o ControlMaster=auto -o ControlPersist=30m -o ControlPath=/tmp/ansib
 
 - Go to `https://artifactory.jfrog.io` and create an account. Next, create a new `local repository` where artifacts will be uploaded to from the Jenkins server.
 
-![Artifactory Setup 1](artifactorysetup1.png)
+![Artifactory Setup 1](images/artifactorysetup1.png)
 
-![Artifactory Setup 2](artifactorysetup2.png)
+![Artifactory Setup 2](images/artifactorysetup2.png)
 
 *The above images are examples and not the exact names of the repo I created*
 
@@ -206,9 +206,9 @@ ssh_args = -o ControlMaster=auto -o ControlPersist=30m -o ControlPath=/tmp/ansib
 
 - Configure Artifactory in Jenkins for syncronization.
 
-![Artifactory Config](artifactoryconfig.png)
+![Artifactory Config](images/artifactoryconfig.png)
 
-![Artifactory Config 2](artifactoryconfig2.png)
+![Artifactory Config 2](images/artifactoryconfig2.png)
 
 - Fork this repository `https://github.com/darey-devops/php-todo.git`.
 
@@ -222,7 +222,7 @@ GRANT ALL PRIVILEGES ON * . * TO 'vergil'@'<Jenkins-ip-address>';
 
 *Ensure to configure `bind_address` in the `my.cnf` file to `0.0.0.0 and port 3306 is open in the security group*
 
-![Bind Address](bindaddress.png)
+![Bind Address](images/bindaddress.png)
 
 - Install PHP on the Jenkins server. *Ran into an issue where the default PHP version I had installed (v8) was too high. HAd to install v7.4 specifically. Got info from `https://www.tecmint.com/install-different-php-versions-in-ubuntu/`*
 
@@ -238,7 +238,7 @@ sudo mv composer.phar /usr/local/bin/composer
 
 - Update the `.env.sample` file with database server information.
 
-![Database Information](envsample.png)
+![Database Information](images/envsample.png)
 
 - Create a new Jenkinsfile for the previously forked repo on the main branch. The repo is now known as `todo`. Insert the code below into the Jenkinsfile.
 
